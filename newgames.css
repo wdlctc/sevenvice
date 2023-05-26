@@ -70,3 +70,51 @@
 
 
 
+.playertablecard {
+    display: inline-block;
+    position: relative;
+    margin-top: 5px;
+    width: 190px;
+    height: 260px;
+    background-image: url('img/images.png'); /* temp hack to see it */
+}
+
+/** Table layout **/
+
+#playertables {
+    position: relative;
+    width: 630px;
+    height: 700px;
+}
+
+.playertablename {
+    font-weight: bold;
+}
+
+.playertable {
+    position: absolute;
+    text-align: center;
+    width: 200px;
+    height: 300px;
+}
+
+.playertable_N {
+    left: 50%;
+    top: 0px;
+    margin-left: -90px; /* half of 180 */
+}
+.playertable_S {
+    left: 50%;
+    bottom: 0px;
+    margin-left: -90px; /* half of 180 */
+}
+.playertable_W {
+    left: 0px;
+    top: 50%;
+    margin-top: -55px; /* half of 130 */
+}
+.playertable_E {
+    right: 0px;
+    top: 50%;
+    margin-top: -55px; /* half of 130 */
+}

@@ -33,13 +33,14 @@ class newgames extends Table
         parent::__construct();
         
         self::initGameStateLabels( array( 
-            //    "my_first_global_variable" => 10,
-            //    "my_second_global_variable" => 11,
-            //      ...
-            //    "my_first_game_variant" => 100,
-            //    "my_second_game_variant" => 101,
-            //      ...
-        ) );        
+                         "currentHandType" => 10, 
+                         "trickType" => 11, 
+                         "lastPlayedCard" => 12,
+                          ) );
+
+        $this->cards = self::getNew( "module.common.deck" );
+        $this->cards->init( "card" );
+           
 	}
 	
     protected function getGameName( )
