@@ -33,5 +33,20 @@ $this->card_types = array(
 */
 
 
+$this->colors = array(
+  1 => '1',
+  2 => '2',
+  3 => '3',
+  4 => '4',
+  5 => '5',
+);
 
-
+$this->values_label = array(
+  1 => 'pride',
+  2 => 'envy',
+  3 => 'wrath',
+  4 => 'sloth',
+  5 => 'greed',
+  6 => 'gluttony',
+  7 => 'lust',
+);

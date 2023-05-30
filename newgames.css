@@ -76,9 +76,13 @@
     margin-top: 5px;
     width: 190px;
     height: 260px;
-    background-image: url('img/images.png'); /* temp hack to see it */
 }
-
+.cardontable {
+    position: absolute;
+    width: 190px;
+    height: 260px;
+    background-image: url('img/images.png'); 
+}
 /** Table layout **/
 
 #playertables {

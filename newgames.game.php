@@ -81,16 +81,38 @@ class newgames extends Table
         /************ Start the game initialization *****/
 
         // Init global values with their initial values
-        //self::setGameStateInitialValue( 'my_first_global_variable', 0 );
+
+        // Note: hand types: 0 = give 3 cards to player on the left
+        //                   1 = give 3 cards to player on the right
+        //                   2 = give 3 cards to player opposite
+        //                   3 = keep cards
+        self::setGameStateInitialValue( 'currentHandType', 0 );
         
-        // Init game statistics
-        // (note: statistics used in this file must be defined in your stats.inc.php file)
-        //self::initStat( 'table', 'table_teststat1', 0 );    // Init a table statistics
-        //self::initStat( 'player', 'player_teststat1', 0 );  // Init a player statistics (for all players)
-
-        // TODO: setup the initial game situation here
+        // Set current trick color to zero (= no trick color)
+        self::setGameStateInitialValue( 'trickType', 0 );
+        
+        // Mark if we already played hearts during this hand
+        self::setGameStateInitialValue( 'lastPlayedCard', 0 );
        
+        // Create cards
+        $cards = array ();
+        foreach ( $this->colors as $color_id => $color ) {
+            // 1，2，3，4，5
+            for ($value = 1; $value <= 7; $value ++) {
+                //  pride, envy, wrath, sloth, greed, gluttony, lust
+                $cards [] = array ('type' => $color_id,'type_arg' => $value,'nbr' => 1 );
+            }
+        }
+        // var_dump($cards);
+        $this->cards->createCards( $cards, 'deck' );
 
+        // Shuffle deck
+        $this->cards->shuffle('deck');
+        // Deal 2 cards to each players
+        $players = self::loadPlayersBasicInfos();
+        foreach ( $players as $player_id => $player ) {
+            $cards = $this->cards->pickCards(2, 'deck', $player_id);
+        } 
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();
 
@@ -116,9 +138,14 @@ class newgames extends Table
         // Note: you can retrieve some extra field you added for "player" table in "dbmodel.sql" if you need it.
         $sql = "SELECT player_id id, player_score score FROM player ";
         $result['players'] = self::getCollectionFromDb( $sql );
-  
+        
         // TODO: Gather all information about current game situation (visible by player $current_player_id).
-  
+        // Cards in player hand
+        $result['hand'] = $this->cards->getCardsInLocation( 'hand', $current_player_id );
+        
+        // Cards played on the table
+        $result['cardsontable'] = $this->cards->getCardsInLocation( 'cardsontable' );
+
         return $result;
     }
 

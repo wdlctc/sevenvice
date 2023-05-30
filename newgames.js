@@ -65,13 +65,38 @@ function (dojo, declare) {
 
             this.playerHand.image_items_per_row = 13; // 13 images per row
 
-            for (var value = 1; value <= 7; value++) {
-                // Build card type id
-                var card_type_id = this.getCardUniqueId(value);
-                this.playerHand.addItemType(card_type_id, card_type_id, g_gamethemeurl + 'img/images.png', card_type_id);
+            for (var color = 1; color <= 5; color++) {
+                for (var value = 1; value <= 7; value++) {
+                    // Build card type id
+                    var card_id = this.getCardUniqueId(value);
+                    var card_unique_id = this.getCardId(value, color);
+                    this.playerHand.addItemType(card_unique_id, card_id, g_gamethemeurl + 'img/images.png', card_id);
+                }
             }
 
-            this.playerHand.addToStockWithId( this.getCardUniqueId( 5 ), 42 );
+            // Cards in player's hand
+            for ( var i in this.gamedatas.hand) {
+                var card = this.gamedatas.hand[i];
+                var color = card.type;
+                var value = card.type_arg;
+                console.log("color "+color);
+                console.log("value "+value);
+                console.log("card.id "+card.id);
+                console.log("card.id "+card.location);
+                console.log(this.getCardId(value, color));
+                console.log(this.getCardUniqueId(value));
+                this.playerHand.addToStockWithId(this.getCardUniqueId(value), card.id);
+            }
+
+            // Cards played on table
+            for (i in this.gamedatas.cardsontable) {
+                var card = this.gamedatas.cardsontable[i];
+                var color = card.type;
+                var value = card.type_arg;
+                var player_id = card.location_arg;
+                this.playCardOnTable(player_id, color, value, card.id);
+            }
+
             dojo.connect( this.playerHand, 'onChangeSelection', this, 'onPlayerHandSelectionChanged' );
             
  
@@ -80,12 +105,41 @@ function (dojo, declare) {
 
             console.log( "Ending game setup" );
         },
-
         // Get card unique identifier based on its color and value
         getCardUniqueId : function(value) {
             return value - 1;
         },
-        
+        // Get card unique identifier based on its color and value
+        getCardId : function(value, color) {
+            return (value - 1) + (color - 1) * 7;
+        },
+
+        playCardOnTable : function(player_id, color, value, card_id) {
+            // player_id => direction
+            dojo.place(this.format_block('jstpl_cardontable', {
+                x : this.cardwidth * (value - 1),
+                y : this.cardheight * (color - 1),
+                player_id : player_id
+            }), 'playertablecard_' + player_id);
+
+            if (player_id != this.player_id) {
+                // Some opponent played a card
+                // Move card from player panel
+                this.placeOnObject('cardontable_' + player_id, 'overall_player_board_' + player_id);
+            } else {
+                // You played a card. If it exists in your hand, move card from there and remove
+                // corresponding item
+
+                if ($('myhand_item_' + card_id)) {
+                    this.placeOnObject('cardontable_' + player_id, 'myhand_item_' + card_id);
+                    this.playerHand.removeFromStockById(card_id);
+                }
+            }
+
+            // In any case: move it to its final destination
+            this.slideToObject('cardontable_' + player_id, 'playertablecard_' + player_id).play();
+        },
+
         onPlayerHandSelectionChanged: function() {
             var items = this.playerHand.getSelectedItems();
 
@@ -95,6 +149,17 @@ function (dojo, declare) {
 
                     var card_id = items[0].id;
                     console.log("on playCard "+card_id);
+                    var type = items[0].type;
+                    console.log("on type "+type);
+                    // var type = items[0].id;
+                    var color = Math.floor(type / 7) + 1; 
+                    var value = type % 7 + 1;
+
+                    console.log(color);
+                    console.log(value);
+                    console.log(card_id);
+                    
+                    this.playCardOnTable(this.player_id,color,value,card_id);
 
                     this.playerHand.unselectAll();
                 } else if (this.checkAction('giveCards')) {
